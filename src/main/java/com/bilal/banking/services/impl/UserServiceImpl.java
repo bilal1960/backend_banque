@@ -2,14 +2,16 @@ package com.bilal.banking.services.impl;
 
 import com.bilal.banking.dto.UserDto;
 import com.bilal.banking.model.User;
-import com.bilal.banking.model.repository.UserRepository;
+import com.bilal.banking.repository.UserRepository;
 import com.bilal.banking.services.UserService;
 import com.bilal.banking.validators.ObjectValidator;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -25,16 +27,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> findAll() {
-        return null;
+        return userRepository.findAll()
+                .stream()
+                .map(UserDto::fromEntity)
+                .collect(Collectors.toList());
+
     }
 
     @Override
     public UserDto findById(Integer id) {
-        return null;
+
+        return userRepository.findById(id)
+                .map(UserDto::fromEntity)
+                .orElseThrow(() -> new EntityNotFoundException("No user was found with the provided ID :"+ id));
     }
 
     @Override
     public void delete(Integer id) {
 
+        userRepository.deleteById(id);
     }
 }

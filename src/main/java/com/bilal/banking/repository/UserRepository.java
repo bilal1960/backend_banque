@@ -1,4 +1,4 @@
-package com.bilal.banking.model.repository;
+package com.bilal.banking.repository;
 
 import com.bilal.banking.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
