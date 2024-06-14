@@ -1,8 +1,12 @@
 package com.bilal.banking.services.impl;
 
+import com.bilal.banking.dto.AccountDto;
 import com.bilal.banking.dto.UserDto;
+import com.bilal.banking.model.Account;
 import com.bilal.banking.model.User;
+import com.bilal.banking.repository.AccountRepository;
 import com.bilal.banking.repository.UserRepository;
+import com.bilal.banking.services.AccountService;
 import com.bilal.banking.services.UserService;
 import com.bilal.banking.validators.ObjectValidator;
 import jakarta.persistence.EntityNotFoundException;
@@ -17,6 +21,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final AccountService accountService;
     private final ObjectValidator<UserDto> validator;
     @Override
     public Integer save(UserDto dto) {
@@ -46,5 +51,34 @@ public class UserServiceImpl implements UserService {
     public void delete(Integer id) {
 
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public Integer validateAccount(Integer id) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("No user was found for user account validation"));
+        user.setActive(true);
+
+        AccountDto account =  AccountDto.builder()
+                .user(UserDto.fromEntity(user))
+                .build();
+
+        accountService.save(account);
+        userRepository.save(user);
+
+        return user.getId();
+    }
+
+    @Override
+    public Integer invalidateAccount(Integer id) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("No user was found for user account validation"));
+
+        user.setActive(false);
+        userRepository.save(user);
+
+        return user.getId();
     }
 }
