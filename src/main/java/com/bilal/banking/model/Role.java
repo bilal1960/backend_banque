@@ -16,5 +16,5 @@ import lombok.experimental.SuperBuilder;
 @Entity
 public class Role extends  AbstractEntity {
 
-    private String role;
+    private String name;
 }
