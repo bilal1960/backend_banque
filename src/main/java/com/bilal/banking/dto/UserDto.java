@@ -20,21 +20,21 @@ public class UserDto {
     @NotBlank(message = "le prénom ne doit pas être vide")
     private String firstname;
 
-    @NotNull
-    @NotEmpty
-    @NotBlank
+    @NotNull(message = "le nom ne doit pas être null")
+    @NotEmpty(message = "entrer un nom svp")
+    @NotBlank(message = "Le nom ne doit pas être vide")
     private String lastname;
 
-    @NotNull
-    @NotEmpty
-    @NotBlank
-    @Email
+    @NotNull(message = "l'email  ne doit pas être vide")
+    @NotEmpty(message = "entrer un email svp ")
+    @NotBlank(message = "L'email  ne doit pas être vide")
+    @Email(message = "L'email n'est pas conforme")
     private String email;
 
-    @NotNull
-    @NotEmpty
-    @NotBlank
-    @Size(min = 8, max = 16)
+    @NotNull(message = "Le password ne doit pas être null")
+    @NotEmpty(message = "entrer un password svp ")
+    @NotBlank(message = "le password ne doit pas être vide")
+    @Size(min = 8, max = 16,message = "le mot de passe doit être entre 8 et 16 caractère")
     private String password;
 
     private String iban;

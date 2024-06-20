@@ -10,6 +10,7 @@ import com.bilal.banking.services.AccountService;
 import com.bilal.banking.services.UserService;
 import com.bilal.banking.validators.ObjectValidator;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -54,19 +55,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public Integer validateAccount(Integer id) {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No user was found for user account validation"));
+
+        if (user.getAccount() == null) {
+            // create a bank account
+            AccountDto account = AccountDto.builder()
+                    .user(UserDto.fromEntity(user))
+                    .build();
+            var savedAccount = accountService.save(account);
+            user.setAccount(
+                    Account.builder()
+                            .id(savedAccount)
+                            .build()
+            );
+        }
         user.setActive(true);
-
-        AccountDto account =  AccountDto.builder()
-                .user(UserDto.fromEntity(user))
-                .build();
-
-        accountService.save(account);
         userRepository.save(user);
-
         return user.getId();
     }
 

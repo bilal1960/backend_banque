@@ -2,13 +2,12 @@ package com.bilal.banking.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -24,6 +23,9 @@ public class Transaction extends AbstractEntity {
     private TransactionType type;
 
     private String destinationIban;
+
+    @Column(updatable = false)
+    private LocalDate transactionDate;
 
     @ManyToOne
     @JoinColumn(name = "id_user")

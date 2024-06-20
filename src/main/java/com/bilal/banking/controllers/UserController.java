@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
-    private UserService service;
+    private final UserService service;
 
     @PostMapping("/")
     public ResponseEntity<Integer> save(
