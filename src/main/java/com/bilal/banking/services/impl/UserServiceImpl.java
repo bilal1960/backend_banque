@@ -1,10 +1,11 @@
 package com.bilal.banking.services.impl;
 
+import com.bilal.banking.config.JwtUtils;
 import com.bilal.banking.dto.AccountDto;
+import com.bilal.banking.dto.AuthenticationResponse;
 import com.bilal.banking.dto.UserDto;
 import com.bilal.banking.model.Account;
 import com.bilal.banking.model.User;
-import com.bilal.banking.repository.AccountRepository;
 import com.bilal.banking.repository.UserRepository;
 import com.bilal.banking.services.AccountService;
 import com.bilal.banking.services.UserService;
@@ -12,6 +13,7 @@ import com.bilal.banking.validators.ObjectValidator;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,10 +26,13 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final AccountService accountService;
     private final ObjectValidator<UserDto> validator;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtils jwtUtils;
     @Override
     public Integer save(UserDto dto) {
         validator.validate(dto);
         User user = UserDto.toEntity(dto);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user).getId();
     }
 
@@ -88,5 +93,18 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
         return user.getId();
+    }
+
+    @Override
+    public AuthenticationResponse register(UserDto dto) {
+        validator.validate(dto);
+        User user = UserDto.toEntity(dto);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        var savedUser = userRepository.save(user);
+        String token = jwtUtils.generateToken(savedUser);
+        return AuthenticationResponse.builder()
+                .token(token)
+                .build();
+
     }
 }
