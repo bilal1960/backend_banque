@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+
+import io.jsonwebtoken.security.Keys;
+import javax.crypto.SecretKey;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +18,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtUtils {
 
-    private String jwtSigningKey = "secret";
+    private final SecretKey jwtSigningKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -49,7 +52,12 @@ public class JwtUtils {
     }
 
     public String generateToken(UserDetails userDetails, Map<String, Object> claims) {
-        return createToken(claims, userDetails);
+        return Jwts.builder().setClaims(claims)
+                .setSubject(userDetails.getUsername())
+                .claim("authorities",userDetails.getAuthorities())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(200)))
+                .signWith(SignatureAlgorithm.HS256, jwtSigningKey).compact();
     }
 
     private String createToken(Map<String, Object> claims, UserDetails userDetails) {
